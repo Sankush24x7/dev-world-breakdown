@@ -1,0 +1,66 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { worlds } from '../../lib/gameData.js';
+import { levels } from '../../lib/levels.js';
+
+export function getStaticPaths() {
+  return worlds.map((world) => ({
+    params: { id: world.id.toString() },
+  }));
+}
+
+const { id } = Astro.params;
+const world = worlds.find((w) => w.id.toString() === id);
+const worldLevels = levels.filter((l) => l.worldId.toString() === id);
+
+if (!world) {
+    return Astro.redirect('/404');
+}
+---
+
+<Layout title={`${world.name} | Overview`}>
+	<main class="container">
+		<header style="margin: 4rem 0;">
+            <a href="/" style="color: hsl(var(--primary)); text-decoration: none; font-weight: 600; font-size: 0.9rem;">← BACK TO DASHBOARD</a>
+			<div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 2rem;">
+                <div style="font-size: 4rem;">{world.icon}</div>
+                <div>
+                    <h2 style="font-size: 3rem;">{world.name}</h2>
+                    <p style="color: hsl(var(--text-muted)); font-size: 1.2rem;">{world.theme} • Levels {world.levels}</p>
+                </div>
+            </div>
+		</header>
+
+		<div style="display: flex; flex-direction: column; gap: 1rem;">
+			{worldLevels.length > 0 ? (
+                worldLevels.map((level) => (
+                    <a href={`/level/${level.id}`} class="glass" style="padding: 1.5rem 2rem; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; transition: var(--transition);">
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <span style="font-family: 'Outfit'; font-weight: 800; font-size: 1.2rem; opacity: 0.3;">{level.id.padStart(2, '0')}</span>
+                            <div>
+                                <h4 style="font-size: 1.2rem;">{level.title}</h4>
+                                <p style="font-size: 0.9rem; color: hsl(var(--text-muted));">{level.mission.substring(0, 80)}...</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <span style="color: hsl(var(--primary)); font-weight: 800; font-size: 0.8rem;">+{level.xpReward} XP</span>
+                            <div class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.8rem;">START MISSION</div>
+                        </div>
+                    </a>
+                ))
+            ) : (
+                <div class="glass" style="padding: 4rem; text-align: center; border-radius: var(--radius-md);">
+                    <p style="color: hsl(var(--text-muted));">Levels for this world are currently under construction. Stay tuned!</p>
+                </div>
+            )}
+		</div>
+	</main>
+
+    <style>
+        a.glass:hover {
+            transform: translateX(10px);
+            background: hsla(var(--bg-card), 0.9);
+            border-color: hsla(var(--primary), 0.5);
+        }
+    </style>
+</Layout>

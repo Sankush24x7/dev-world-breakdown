@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Skill Tree | Potential Unlocked">
+	<main class="container">
+		<header style="margin: 4rem 0; text-align: center;">
+            <h2 style="font-size: 3rem; margin-bottom: 1rem;">Your <span style="color: hsl(var(--secondary))">Skill Tree</span></h2>
+            <p style="color: hsl(var(--text-muted));">Master each node to climb the engineering ranks.</p>
+		</header>
+
+		<div class="glass" style="padding: 4rem; border-radius: var(--radius-lg); display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; justify-items: center;">
+			{/* Column 1: Core Logic */}
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 3rem;">
+                <h4 style="color: hsl(var(--primary))">LOGIC</h4>
+                <div class="glass skill-node" title="Variables">🌱</div>
+                <div class="glass skill-node" title="Loops">🔁</div>
+                <div class="glass skill-node locked" title="Functions">📦</div>
+            </div>
+
+            {/* Column 2: Backend */}
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 3rem;">
+                <h4 style="color: hsl(var(--secondary))">BACKEND</h4>
+                <div class="glass skill-node locked" title="HTTP">🌐</div>
+                <div class="glass skill-node locked" title="APIs">🔌</div>
+                <div class="glass skill-node locked" title="DB">🗄️</div>
+            </div>
+
+            {/* Column 3: Frontend */}
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 3rem;">
+                <h4 style="color: hsl(var(--accent))">FRONTEND</h4>
+                <div class="glass skill-node locked" title="DOM">🌳</div>
+                <div class="glass skill-node locked" title="State">🔋</div>
+                <div class="glass skill-node locked" title="Auth">🔑</div>
+            </div>
+
+            {/* Column 4: Architecture */}
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 3rem;">
+                <h4 style="color: #00ff88">SYSTEMS</h4>
+                <div class="glass skill-node locked" title="Scaling">⚖️</div>
+                <div class="glass skill-node locked" title="Security">🛡️</div>
+                <div class="glass skill-node locked" title="Cloud">☁️</div>
+            </div>
+		</div>
+
+        <div style="text-align: center; margin-top: 4rem;">
+            <a href="/" class="btn-primary">BACK TO MISSIONS</a>
+        </div>
+	</main>
+</Layout>

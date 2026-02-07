@@ -1,0 +1,141 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { levels } from '../../lib/levels.js';
+
+export function getStaticPaths() {
+  return levels.map((level) => ({
+    params: { id: level.id },
+  }));
+}
+
+const { id } = Astro.params;
+const level = levels.find((l) => l.id === id);
+
+if (!level) {
+    return Astro.redirect('/404');
+}
+---
+
+<Layout title={`Level ${level.id}: ${level.title}`}>
+	<main 
+        class="container" 
+        id="level-container"
+        data-level-id={level.id}
+        data-xp-reward={level.xpReward}
+        data-validation-regex={level.validationRegex}
+        style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; margin-top: 2rem; min-height: 80vh;"
+    >
+		{/* Left Side: Story & Mission */}
+		<div class="glass" style="padding: 2.5rem; border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: 2rem;">
+			<div>
+                <span style="font-family: 'Outfit'; color: hsl(var(--primary)); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em;">LEVEL {level.id}</span>
+                <h2 style="font-size: 2.5rem; margin-top: 0.5rem;">{level.title}</h2>
+            </div>
+            
+            <div style="background: hsla(var(--bg-dark), 0.4); padding: 1.5rem; border-radius: var(--radius-md); border-left: 4px solid hsl(var(--secondary));">
+                <p style="font-style: italic; color: hsl(var(--text-muted)); line-height: 1.6;">"{level.story}"</p>
+            </div>
+
+            <div>
+                <h4 style="margin-bottom: 1rem; color: #fff;">Mission Objectives</h4>
+                <p style="margin-bottom: 1rem; line-height: 1.6;">{level.mission}</p>
+                <ul style="padding-left: 1.5rem; color: hsl(var(--text-muted));">
+                    {level.rules.map(rule => <li style="margin-bottom: 0.5rem;">{rule}</li>)}
+                </ul>
+            </div>
+
+            <div id="interview-card" style="margin-top: auto; display: none;">
+                <div class="glass" style="padding: 1.5rem; border-radius: var(--radius-md); background: hsla(var(--accent), 0.1); border: 1px solid hsla(var(--accent), 0.3);">
+                    <h5 style="color: hsl(var(--accent)); margin-bottom: 0.5rem; font-family: 'Outfit';">INTERVIEW INSIGHT</h5>
+                    <p id="interview-text" style="font-size: 0.9rem; line-height: 1.5;">{level.interviewInsight}</p>
+                </div>
+            </div>
+		</div>
+
+		{/* Right Side: Code Editor & Execution */}
+		<div class="glass" style="padding: 2.5rem; border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: 2rem;">
+			<div style="flex-grow: 1; display: flex; flex-direction: column;">
+                <h4 style="margin-bottom: 1rem;">Code Editor</h4>
+                <div style="flex-grow: 1; position: relative;">
+                    <textarea 
+                        id="code-editor" 
+                        spellcheck="false"
+                        style="width: 100%; height: 300px; background: hsla(var(--bg-dark), 0.8); border: 1px solid hsla(var(--text-main), 0.1); padding: 1.5rem; border-radius: var(--radius-md); color: #00ff88; font-family: 'Courier New', monospace; font-size: 1rem; resize: none; outline: none;"
+                    >{level.initialCode}</textarea>
+                </div>
+            </div>
+
+            <div id="status-message" style="min-height: 3rem;"></div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button id="submit-btn" class="btn-primary" style="flex-grow: 1;">RUN & VALIDATE</button>
+                <button id="next-btn" class="btn-primary" style="flex-grow: 1; display: none; background: linear-gradient(135deg, #00d2ff, #3a7bd5);">NEXT LEVEL</button>
+            </div>
+		</div>
+	</main>
+
+    <script>
+        import { gameStore } from '../../lib/gameStore.js';
+
+        const container = document.getElementById('level-container');
+        const editor = document.getElementById('code-editor');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const statusMsg = document.getElementById('status-message');
+        const interviewCard = document.getElementById('interview-card');
+
+        const levelId = container.dataset.levelId;
+        const xpReward = parseInt(container.dataset.xpReward);
+        const validationRegex = container.dataset.validationRegex;
+
+        submitBtn.addEventListener('click', () => {
+            const code = editor.value;
+            let isValid = false;
+
+            if (levelId === "1") {
+                // Special case for Level 1 complex check
+                const hasRole = /const\s+role\s*=\s*(['"])Dev\1|let\s+role\s*=\s*(['"])Dev\2/.test(code);
+                const hasLevel = /const\s+level\s*=\s*10|let\s+level\s*=\s*10/.test(code);
+                isValid = hasRole && hasLevel;
+            } else if (validationRegex) {
+                const regex = new RegExp(validationRegex);
+                isValid = regex.test(code);
+            }
+
+            if (isValid) {
+                statusMsg.innerHTML = `<p style="color: #00ff88; font-weight: 800;">MISSION SUCCESS! +${xpReward} XP</p>`;
+                gameStore.updateXP(xpReward);
+                gameStore.completeLevel(levelId);
+                interviewCard.style.display = 'block';
+                submitBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+            } else {
+                statusMsg.innerHTML = '<p style="color: #ff4757;">MISSION FAILED. Check your syntax and rules.</p>';
+                gameStore.updateHealth(-10);
+                setTimeout(() => {
+                    const el = document.getElementById('status-message');
+                    el.classList.add('shake');
+                    setTimeout(() => el.classList.remove('shake'), 400);
+                }, 10);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const nextId = parseInt(levelId) + 1;
+            window.location.href = `/level/${nextId}`;
+        });
+    </script>
+
+    <style is:global>
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</Layout>

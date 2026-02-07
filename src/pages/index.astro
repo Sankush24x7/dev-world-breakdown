@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { worlds } from '../lib/gameData.js';
+---
+
+<Layout title="Developer World Breakdown | Dashboard">
+	<main class="container">
+		<header style="margin-bottom: 4rem; text-align: center; padding: 4rem 1rem;">
+			<h2 style="font-size: 3.5rem; margin-bottom: 1rem;">Unlock Your <span style="background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Engineering Potential</span></h2>
+			<p style="color: hsl(var(--text-muted)); font-size: 1.2rem; max-width: 600px; margin: 0 auto;">A 100-level journey from basic logic to system architecture. Prove your skills, earn XP, and survive the technical interviews.</p>
+		</header>
+
+		<div class="grid grid-cols-3">
+			{worlds.map((world) => (
+				<a href={`/world/${world.id}`} class="glass world-card" style="padding: 2rem; border-radius: var(--radius-lg); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block;">
+					<div style="font-size: 3rem; margin-bottom: 1.5rem;">{world.icon}</div>
+					<h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">{world.name}</h3>
+					<p style="color: hsl(var(--primary)); font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.1em;">Levels {world.levels}</p>
+					<p style="color: hsl(var(--text-muted)); margin-bottom: 2rem; line-height: 1.6;">{world.description}</p>
+					<button class="btn-primary" style="width: 100%;">Enter World</button>
+					
+					<div style="position: absolute; top: 0; right: 0; padding: 1rem; font-family: 'Outfit'; font-weight: 800; opacity: 0.1; font-size: 4rem;">0{world.id}</div>
+				</a>
+			))}
+		</div>
+	</main>
+
+	<style>
+		.world-card:hover {
+			transform: translateY(-10px);
+			border-color: hsla(var(--primary), 0.5);
+			background: hsla(var(--bg-card), 0.9);
+		}
+	</style>
+</Layout>

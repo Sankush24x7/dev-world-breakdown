@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title || 'Developer World Breakdown'}</title>
+	</head>
+	<body>
+		<nav class="glass-nav">
+			<div class="container" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
+				<a href="/" style="text-decoration: none;">
+                    <h1 style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DEV WORLD</h1>
+                </a>
+				<div style="display: flex; align-items: center; gap: 2rem;">
+                    <a href="/skills" style="color: hsl(var(--text-muted)); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: var(--transition);">SKILL TREE</a>
+                    <div id="stats-display" class="glass" style="padding: 0.5rem 1.5rem; border-radius: 2rem; display: flex; gap: 1.5rem; font-family: 'Outfit', sans-serif; font-size: 0.9rem;">
+                        <span>XP: <b id="xp-display" style="color: hsl(var(--primary))">0</b></span>
+                        <span>HEALTH: <b id="health-display" style="color: #ff4757">100%</b></span>
+                        <span>RANK: <b id="rank-display" style="color: hsl(var(--secondary))">Intern</b></span>
+                    </div>
+                </div>
+			</div>
+		</nav>
+
+		<slot />
+
+        <script>
+            import { gameStore } from '../lib/gameStore.js';
+
+            function updateUI(stats) {
+                const xpEl = document.getElementById('xp-display');
+                const healthEl = document.getElementById('health-display');
+                const rankEl = document.getElementById('rank-display');
+
+                if (xpEl) xpEl.textContent = stats.xp;
+                if (healthEl) healthEl.textContent = stats.health + '%';
+                if (rankEl) rankEl.textContent = stats.title.split(' ')[0]; // Show short rank
+            }
+
+            // Sync UI with store
+            gameStore.subscribe(updateUI);
+            updateUI(gameStore.stats);
+        </script>
+	</body>
+</html>
